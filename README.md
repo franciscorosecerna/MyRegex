@@ -1,4 +1,4 @@
-**MyRegex — Regular Expression Engine (C#)**
+## **MyRegex — Regular Expression Engine (C#)**
 
 Implementation from scratch of a regular expression engine in C# without using `System.Text.RegularExpressions`.
 
@@ -7,7 +7,7 @@ Main features:
 
 - Manual backtracking to support quantifiers and alternations.
 
-**Architecture**
+## **Architecture**
 
 The project models regular expressions as a set of nodes (`RegexNode`) that make up an AST. Design patterns such as Composite and Interpreter are used, along with a backtracking mechanism to support complex matches.
 
@@ -30,7 +30,7 @@ Composite Nodes:
 - `Group` (capturing groups)
 - `Sequence`
 
-**How it works**
+## **How it works**
 
 Class: `RegexEngine`
 - Constructor: `new RegexEngine(RegexNode root)` Creates the engine from the AST root node.
@@ -63,7 +63,7 @@ Console.WriteLine(engine.IsMatch("a"));     // false
 Console.WriteLine(engine.IsMatch("aaaaa")); // false
 ```
 
-Current limitations
+## Current limitations
 - Does not use `System.Text.RegularExpressions`. It is an educational and experimental implementation.
 - `Replace` does not yet support group references (`$1`, `$2`, ...).
 - There is (not yet) a parser to convert a pattern string directly into `RegexNode`; expressions can be manually constructed from nodes.
