@@ -66,33 +66,6 @@
                 return "";
             return Context.Text.Substring(startPos, Position - startPos);
         }
-
-        public static MatchResult Run(RegexNode node, string text)
-        {
-            var context = new MatchContext(text);
-
-            var result = node.Match(context, 0);
-            if (result.IsSuccess)
-                return result;
-
-            while (context.TryPopBacktrack(out var bt))
-            {
-                var restored = bt.Context.Snapshot();
-
-                var resumeResult = bt.Node.Resume(restored, bt.Position, bt.State);
-
-                if (resumeResult.IsSuccess)
-                {
-                    var newContext = resumeResult.Context;
-
-                    var retryResult = node.Match(newContext, 0);
-                    if (retryResult.IsSuccess)
-                        return retryResult;
-                }
-            }
-
-            return Failure(context);
-        }
     }
 
     public record BacktrackPoint(
