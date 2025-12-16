@@ -18,7 +18,9 @@
         RBrace,
         Comma,
         Number,
-        End
+        Backslash,
+        End,
+        Dash,
     }
     public record Token(TokenType Type, string Value);
 
@@ -37,6 +39,17 @@
 
             char c = _pattern[_pos++];
 
+            if (char.IsDigit(c))
+            {
+                int start = _pos - 1;
+                while (_pos < _pattern.Length && char.IsDigit(_pattern[_pos]))
+                    _pos++;
+                return new Token(
+                    TokenType.Number,
+                    _pattern[start.._pos]
+                );
+            }
+
             return c switch
             {
                 '.' => new Token(TokenType.Dot, "."),
@@ -53,6 +66,8 @@
                 '{' => new Token(TokenType.LBrace, "{"),
                 '}' => new Token(TokenType.RBrace, "}"),
                 ',' => new Token(TokenType.Comma, ","),
+                '-' => new Token(TokenType.Dash, "-"),
+                '\\' => new Token(TokenType.Backslash, "\\"),
                 _ => new Token(TokenType.Literal, c.ToString())
             };
         }
