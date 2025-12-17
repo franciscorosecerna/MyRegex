@@ -21,6 +21,9 @@
         Backslash,
         End,
         Dash,
+        Equals,
+        Exclamation,
+        LessThan
     }
     public record Token(TokenType Type, string Value);
 
@@ -68,6 +71,9 @@
                 ',' => new Token(TokenType.Comma, ","),
                 '-' => new Token(TokenType.Dash, "-"),
                 '\\' => new Token(TokenType.Backslash, "\\"),
+                '=' => new Token(TokenType.Equals, "="),
+                '!' => new Token(TokenType.Exclamation, "!"),
+                '<' => new Token(TokenType.LessThan, "<"),
                 _ => new Token(TokenType.Literal, c.ToString())
             };
         }

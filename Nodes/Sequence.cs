@@ -9,6 +9,7 @@
             _children = [.. children];
         }
 
+        public List<RegexNode> Childrens => _children;
         public override MatchResult Match(MatchContext context, int position)
         {
             return MatchFrom(context, position, 0);

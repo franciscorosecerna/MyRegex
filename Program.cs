@@ -9,6 +9,7 @@
 /// Whitespace
 /// Wildcard
 /// WordChar
+/// WordBoundary
 /// 
 /// Nodes:
 /// OneOrMore
@@ -18,4 +19,6 @@
 /// Alternation
 /// Group
 /// Sequence
+/// LookAhead
+/// LookBehind
 ///

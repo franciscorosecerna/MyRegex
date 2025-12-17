@@ -2,9 +2,9 @@
 {
     public abstract class Quantifier : RegexNode
     {
-        protected readonly RegexNode Child;
-        protected readonly int Min;
-        protected readonly int? Max;
+        public readonly RegexNode Child;
+        public readonly int Min;
+        public readonly int? Max;
 
         protected Quantifier(RegexNode child, int min, int? max)
         {

@@ -132,9 +132,60 @@ namespace MyRegex.Parser
             if (_current.Type == TokenType.LParen)
             {
                 Eat(TokenType.LParen);
-                var expr = ParseExpression();
+
+                if (_current.Type == TokenType.Question)
+                {
+                    Eat(TokenType.Question);
+
+                    if (_current.Type == TokenType.Equals)
+                    {
+                        Eat(TokenType.Equals);
+                        var expr = ParseExpression();
+                        Eat(TokenType.RParen);
+                        return new PositiveLookahead(expr);
+                    }
+
+                    if (_current.Type == TokenType.Exclamation)
+                    {
+                        Eat(TokenType.Exclamation);
+                        var expr = ParseExpression();
+                        Eat(TokenType.RParen);
+                        return new NegatedNode(new PositiveLookahead(expr));
+                    }
+
+                    if (_current.Type == TokenType.LessThan)
+                    {
+                        Eat(TokenType.LessThan);
+
+                        if (_current.Type == TokenType.Equals)
+                        {
+                            Eat(TokenType.Equals);
+                            var expr = ParseExpression();
+                            Eat(TokenType.RParen);
+
+                            int length = CalculateFixedLength(expr);
+                            return new PositiveLookbehind(expr, length);
+                        }
+
+                        if (_current.Type == TokenType.Exclamation)
+                        {
+                            Eat(TokenType.Exclamation);
+                            var expr = ParseExpression();
+                            Eat(TokenType.RParen);
+
+                            int length = CalculateFixedLength(expr);
+                            return new NegatedNode(
+                                new PositiveLookbehind(expr, length)
+                            );
+                        }
+                    }
+
+                    throw new Exception("Unsupported group syntax");
+                }
+
+                var normal = ParseExpression();
                 Eat(TokenType.RParen);
-                return new Group(expr);
+                return new Group(normal);
             }
 
             if (_current.Type == TokenType.Caret)
@@ -161,6 +212,11 @@ namespace MyRegex.Parser
 
                 return c switch
                 {
+                    'B' => new NegatedNode(new WordBoundary()),
+                    'D' => new NegatedNode(new Digit()),
+                    'W' => new NegatedNode(new WordChar()),
+                    'S' => new NegatedNode(new Whitespace()),
+                    'b' => new WordBoundary(),
                     'd' => new Digit(),
                     'w' => new WordChar(),
                     's' => new Whitespace(),
@@ -179,6 +235,29 @@ namespace MyRegex.Parser
             }
 
             throw new Exception("Unexpected token");
+        }
+
+        private static int CalculateFixedLength(RegexNode node)
+        {
+            return node switch
+            {
+                Literal _ => 1,
+                Digit _ => 1,
+                WordChar _ => 1,
+                Whitespace _ => 1,
+                Wildcard _ => 1,
+                CharacterClass _ => 1,
+                Sequence seq => seq.Childrens.Sum(n => CalculateFixedLength(n)),
+                Group g => CalculateFixedLength(g.Child),
+                ZeroOrMore _ => throw new Exception("Lookbehind does not support * quantifier"),
+                OneOrMore _ => throw new Exception("Lookbehind does not support + quantifier"),
+                Optional _ => throw new Exception("Lookbehind does not support ? quantifier"),
+                RangeQuantifier q when q.Min != q.Max =>
+                    throw new Exception("Lookbehind requires exact repetition count"),
+                RangeQuantifier q => CalculateFixedLength(q.Child) * q.Min,
+                Alternation _ => throw new Exception("Lookbehind does not support alternation with different lengths"),
+                _ => throw new Exception($"Lookbehind does not support {node.GetType().Name}")
+            };
         }
 
         public RegexNode ParseCharacterClass()
@@ -208,6 +287,8 @@ namespace MyRegex.Parser
 
                     switch (esc)
                     {
+                        case 'D': ranges.Add(new CharacterRange('0', '9'));
+                            continue;
                         case 'd':
                             ranges.Add(new CharacterRange('0', '9'));
                             continue;

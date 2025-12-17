@@ -20,6 +20,8 @@
 
         public int GroupIndex => _groupIndex;
 
+        public RegexNode Child => _child;
+
         public override MatchResult Match(MatchContext context, int position)
         {
             var snapshot = context.Snapshot();
