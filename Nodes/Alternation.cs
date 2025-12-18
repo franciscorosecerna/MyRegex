@@ -23,9 +23,8 @@
                     Node: this,
                     Position: position,
                     Context: snapshot,
-                    State: 1
+                    State: 0
                 ));
-
                 return leftResult;
             }
 
@@ -33,14 +32,12 @@
             return _right.Match(context, position);
         }
 
-        public override MatchResult Resume(MatchContext context, int position, int state)
+        public override MatchResult Resume(
+            MatchContext context,
+            int position,
+            int state)
         {
-            if (state == 1)
-            {
-                return _right.Match(context, position);
-            }
-
-            return MatchResult.Failure(context);
+            return _right.Match(context, position);
         }
 
         public override string ToString() => $"({_left}|{_right})";

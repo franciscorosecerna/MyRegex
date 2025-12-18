@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MyRegex
 {
@@ -18,13 +19,11 @@ namespace MyRegex
 
             if (result.IsSuccess)
             {
-                var finalContext = result.Context;
-
                 return new RegexMatch(
                     text,
                     startPosition,
                     result.Position,
-                    finalContext.GetAllCaptures()
+                    result.Context.GetAllCaptures()
                 );
 
             }
@@ -40,7 +39,7 @@ namespace MyRegex
                         text,
                         startPosition,
                         result.Position,
-                        context.GetAllCaptures()
+                        result.Context.GetAllCaptures()
                     );
                 }
             }
@@ -96,7 +95,67 @@ namespace MyRegex
         }
 
         public string Replace(string text, string replacement)
-            => Replace(text, _ => replacement);
+            => Replace(text, match => ExpandReplacement(replacement, match));
+
+        private static string ExpandReplacement(string replacement, RegexMatch match)
+        {
+            var sb = new StringBuilder();
+
+            for (int i = 0; i < replacement.Length; i++)
+            {
+                char c = replacement[i];
+
+                if (c != '$')
+                {
+                    sb.Append(c);
+                    continue;
+                }
+
+                if (i + 1 >= replacement.Length)
+                {
+                    sb.Append('$');
+                    break;
+                }
+
+                char next = replacement[++i];
+                if (next == '$')
+                {
+                    sb.Append('$');
+                    continue;
+                }
+
+                if (next == '&')
+                {
+                    sb.Append(match.Value);
+                    continue;
+                }
+
+                if (next == '0')
+                {
+                    sb.Append(match.Value);
+                    continue;
+                }
+
+                if (char.IsDigit(next))
+                {
+                    int index = next - '0';
+
+                    while (i + 1 < replacement.Length &&
+                           char.IsDigit(replacement[i + 1]))
+                    {
+                        index = index * 10 + (replacement[++i] - '0');
+                    }
+
+                    if (match.Groups.TryGetValue(index, out var value))
+                        sb.Append(value);
+
+                    continue;
+                }
+                sb.Append('$').Append(next);
+            }
+
+            return sb.ToString();
+        }
 
         public IEnumerable<string> Split(string text)
         {
