@@ -273,6 +273,7 @@ namespace MyRegex.Parser
 
             var ranges = new List<CharacterRange>();
             var singles = new List<char>();
+            var specialClasses = new List<RegexNode>();
 
             while (_current.Type != TokenType.RBracket)
             {
@@ -287,10 +288,11 @@ namespace MyRegex.Parser
 
                     switch (esc)
                     {
-                        case 'D': ranges.Add(new CharacterRange('0', '9'));
-                            continue;
                         case 'd':
                             ranges.Add(new CharacterRange('0', '9'));
+                            continue;
+                        case 'D':
+                            specialClasses.Add(new NegatedNode(new Digit()));
                             continue;
                         case 'w':
                             ranges.Add(new CharacterRange('a', 'z'));
@@ -298,15 +300,21 @@ namespace MyRegex.Parser
                             ranges.Add(new CharacterRange('0', '9'));
                             singles.Add('_');
                             continue;
+                        case 'W':
+                            specialClasses.Add(new NegatedNode(new WordChar()));
+                            continue;
                         case 's':
                             singles.Add(' ');
                             singles.Add('\t');
                             singles.Add('\n');
                             singles.Add('\r');
                             continue;
-                        default:
-                            singles.Add(esc);
+                        case 'S':
+                            specialClasses.Add(new NegatedNode(new Whitespace()));
                             continue;
+                        default:
+                            start = esc;
+                            break;
                     }
                 }
                 else
@@ -332,11 +340,9 @@ namespace MyRegex.Parser
 
             Eat(TokenType.RBracket);
 
-            var cls = new CharacterClass(ranges, singles);
+            var cls = new CharacterClass(ranges, singles, specialClasses);
 
-            return negated
-                ? new NegatedNode(cls)
-                : cls;
+            return negated ? new NegatedNode(cls) : cls;
         }
     }
 }
