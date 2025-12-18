@@ -76,7 +76,7 @@ namespace MyRegex
         public bool IsMatch(string text)
             => Search(text) != null;
 
-        public string Replace(string text, string replacement)
+        public string Replace(string text, Func<RegexMatch, string> evaluator)
         {
             var matches = Matches(text).ToList();
             if (matches.Count == 0) return text;
@@ -86,18 +86,17 @@ namespace MyRegex
 
             foreach (var match in matches)
             {
-                if (match.Start < lastIndex)
-                    continue;
-
+                if (match.Start < lastIndex) continue;
                 sb.Append(text[lastIndex..match.Start]);
-                sb.Append(replacement);
+                sb.Append(evaluator(match));
                 lastIndex = match.End;
             }
-
             sb.Append(text[lastIndex..]);
-
             return sb.ToString();
         }
+
+        public string Replace(string text, string replacement)
+            => Replace(text, _ => replacement);
 
         public IEnumerable<string> Split(string text)
         {
