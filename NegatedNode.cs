@@ -1,28 +1,34 @@
-﻿namespace MyRegex
+﻿using MyRegex;
+using MyRegex.Leaf;
+
+public class NegatedNode : RegexNode
 {
-    public class NegatedNode : RegexNode
+    private readonly RegexNode _inner;
+    private readonly bool _isZeroWidth = false;
+
+    public NegatedNode(RegexNode inner)
     {
-        private readonly RegexNode _inner;
+        _inner = inner;
+        _isZeroWidth = inner is WordBoundary ||
+                       inner is StartAnchor ||
+                       inner is EndAnchor;
+    }
 
-        public NegatedNode(RegexNode inner)
-            => _inner = inner;
-
-        public override MatchResult Match(MatchContext context, int position)
-        {
-            if (position >= context.Text.Length)
-                return MatchResult.Failure(context);
-
-            var snapshot = context.Snapshot();
-            var result = _inner.Match(context, position);
-
-            context.RestoreFrom(snapshot);
-
-            if (!result.IsSuccess)
-                return MatchResult.Success(position + 1, context);
-
+    public override MatchResult Match(MatchContext context, int position)
+    {
+        if (!_isZeroWidth && position >= context.Text.Length)
             return MatchResult.Failure(context);
+
+        var snapshot = context.Snapshot();
+        var result = _inner.Match(context, position);
+        context.RestoreFrom(snapshot);
+
+        if (!result.IsSuccess)
+        {
+            int newPosition = _isZeroWidth ? position : position + 1;
+            return MatchResult.Success(newPosition, context);
         }
 
-        public override string ToString() => $"[^{_inner}]";
+        return MatchResult.Failure(context);
     }
 }
