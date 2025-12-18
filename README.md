@@ -2,10 +2,11 @@
 
 Implementation from scratch of a regular expression engine in C# without using `System.Text.RegularExpressions`.
 
-Main features:
-- Syntax Tree (AST)-based engine with composite nodes.
+## Main features
 
-- Manual backtracking to support quantifiers and alternations.
+- Full AST-based regex engine.
+- Manual backtracking for quantifiers and alternations.
+- Regex parser that converts a pattern string into an AST (RegexParser).
 
 ## **Architecture**
 
@@ -19,9 +20,12 @@ Leaves:
 - `StartAnchor`
 - `Whitespace`
 - `Wildcard`
+- `WordBoundary`
 - `WordChar`
 
 Composite Nodes:
+- `LookAhead`
+- `LookBehind`
 - `OneOrMore` (one or more)
 - `ZeroOrMore` (zero or more)
 - `Optional` (optional)
@@ -48,22 +52,25 @@ Class: `RegexEngine`
 - `IEnumerable<string> Split(string text)` splits the string using the matches as separators.
 
 ```csharp
-//pattern: a{2,4}
-var pattern = new RangeQuantifier(
-    new Literal('a'),
-    min: 2,
-    max: 4
-);
+var pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])[A-Za-z\d\W_]*$";
+var parser = new RegexParser(pattern);
+var ast = parser.ParseExpression();
+var engine = new RegexEngine(ast);
 
-var engine = new RegexEngine(pattern);
 
-Console.WriteLine(engine.IsMatch("aa"));    // true
-Console.WriteLine(engine.IsMatch("aaaa"));  // true
-Console.WriteLine(engine.IsMatch("a"));     // false
-Console.WriteLine(engine.IsMatch("aaaaa")); // false
+// Valid passwords
+Assert.True(engine.IsMatch("Abc1!"));
+Assert.True(engine.IsMatch("Password1@"));
+
+
+// Invalid passwords
+Assert.False(engine.IsMatch("password1!"));
+Assert.False(engine.IsMatch("PASSWORD1!"));
+Assert.False(engine.IsMatch("Password!"));
+Assert.False(engine.IsMatch("Password1"));
 ```
 
 ## Current limitations
-- Does not use `System.Text.RegularExpressions`. It is an educational and experimental implementation.
+- Performance is not comparable to production regex engines.
 - `Replace` does not yet support group references (`$1`, `$2`, ...).
-- There is (not yet) a parser to convert a pattern string directly into `RegexNode`; expressions can be manually constructed from nodes.
+- Error messages are minimal (parser-focused).
