@@ -22,6 +22,17 @@ namespace MyRegex.Parser
             _current = _lexer.Next();
         }
 
+        private char EatChar()
+        {
+            if (_current.Type != TokenType.Literal &&
+                _current.Type != TokenType.Number)
+                throw new Exception($"Expected character, got {_current.Type}");
+
+            char c = _current.Value[0];
+            Eat(_current.Type);
+            return c;
+        }
+
         public RegexNode ParseExpression()
         {
             var left = ParseConcatenation();
@@ -283,8 +294,7 @@ namespace MyRegex.Parser
                 {
                     Eat(TokenType.Backslash);
 
-                    char esc = _current.Value[0];
-                    Eat(TokenType.Literal);
+                    char esc = EatChar();
 
                     switch (esc)
                     {
@@ -319,17 +329,13 @@ namespace MyRegex.Parser
                 }
                 else
                 {
-                    start = _current.Value[0];
-                    Eat(TokenType.Literal);
+                    start = EatChar();
                 }
 
                 if (_current.Type == TokenType.Dash)
                 {
                     Eat(TokenType.Dash);
-
-                    char end = _current.Value[0];
-                    Eat(TokenType.Literal);
-
+                    char end = EatChar();
                     ranges.Add(new CharacterRange(start, end));
                 }
                 else
