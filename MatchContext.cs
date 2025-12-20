@@ -4,7 +4,10 @@
     {
         private Dictionary<int, string> _captures;
         private Stack<BacktrackPoint> _backtrack;
+
         public string Text { get; }
+        public int MatchStart { get; set; } = -1;
+        public bool HasMatchStarted => MatchStart >= 0;
 
         public MatchContext(string text)
         {
@@ -45,7 +48,7 @@
             => _backtrack.Push(point);
 
         public bool TryPopBacktrack(out BacktrackPoint point)
-            => _backtrack.TryPop(out point);
+            => _backtrack.TryPop(out point!);
     }
 
     public class MatchResult

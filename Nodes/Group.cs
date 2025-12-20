@@ -4,13 +4,6 @@
     {
         private readonly RegexNode _child;
         private readonly int _groupIndex;
-        private static int _nextGroupIndex = 1;
-
-        public Group(RegexNode child)
-        {
-            _child = child;
-            _groupIndex = _nextGroupIndex++;
-        }
 
         public Group(RegexNode child, int groupIndex)
         {

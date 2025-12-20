@@ -7,11 +7,13 @@ namespace MyRegex.Parser
     {
         private readonly RegexLexer _lexer;
         private Token _current;
+        private int _nextGroupIndex;
 
         public RegexParser(string pattern)
         {
             _lexer = new RegexLexer(pattern);
             _current = _lexer.Next();
+            _nextGroupIndex = 1;
         }
 
         public void Eat(TokenType type)
@@ -194,9 +196,10 @@ namespace MyRegex.Parser
                     throw new Exception("Unsupported group syntax");
                 }
 
+                int groupIndex = _nextGroupIndex++;
                 var normal = ParseExpression();
                 Eat(TokenType.RParen);
-                return new Group(normal);
+                return new Group(normal, groupIndex);
             }
 
             if (_current.Type == TokenType.Caret)

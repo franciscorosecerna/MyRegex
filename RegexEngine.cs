@@ -19,13 +19,16 @@ namespace MyRegex
 
             if (result.IsSuccess)
             {
+                int start = context.HasMatchStarted
+                    ? context.MatchStart
+                    : startPosition;
+
                 return new RegexMatch(
                     text,
-                    startPosition,
+                    start,
                     result.Position,
                     result.Context.GetAllCaptures()
                 );
-
             }
 
             while (context.TryPopBacktrack(out var point))
@@ -35,9 +38,13 @@ namespace MyRegex
 
                 if (result.IsSuccess)
                 {
+                    int start = context.HasMatchStarted
+                        ? context.MatchStart
+                        : startPosition;
+
                     return new RegexMatch(
                         text,
-                        startPosition,
+                        start,
                         result.Position,
                         result.Context.GetAllCaptures()
                     );
@@ -195,7 +202,7 @@ namespace MyRegex
             Text = text;
             Start = start;
             End = end;
-            Groups = groups;
+            Groups = new Dictionary<int, string>(groups);
         }
     }
 }
