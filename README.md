@@ -47,7 +47,7 @@ Class: `RegexEngine`
 
 - `bool IsMatch(string text)` true if at least one match exists.
 
-- `string Replace(string text, string replacement)` replaces all matches with `replacement` (note: does not yet support group references like `$1`).
+- `string Replace(string text, string replacement)` replaces all matches with `replacement`.
 
 - `IEnumerable<string> Split(string text)` splits the string using the matches as separators.
 
@@ -72,5 +72,4 @@ Assert.False(engine.IsMatch("Password1"));
 
 ## Current limitations
 - Performance is not comparable to production regex engines.
-- `Replace` does not yet support group references (`$1`, `$2`, ...).
 - Error messages are minimal (parser-focused).
