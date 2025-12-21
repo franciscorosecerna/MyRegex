@@ -31,9 +31,14 @@
     {
         private readonly string _pattern;
         private int _pos;
+        private bool _inCharClass;
 
         public RegexLexer(string pattern)
-            => _pattern = pattern;
+        {
+            _pattern = pattern;
+            _pos = 0;
+            _inCharClass = false;
+        }
 
         public Token Next()
         {
@@ -47,35 +52,48 @@
                 int start = _pos - 1;
                 while (_pos < _pattern.Length && char.IsDigit(_pattern[_pos]))
                     _pos++;
+
                 return new Token(
                     TokenType.Number,
                     _pattern[start.._pos]
                 );
             }
 
-            return c switch
+            switch (c)
             {
-                '.' => new Token(TokenType.Dot, "."),
-                '*' => new Token(TokenType.Star, "*"),
-                '+' => new Token(TokenType.Plus, "+"),
-                '?' => new Token(TokenType.Question, "?"),
-                '|' => new Token(TokenType.Or, "|"),
-                '(' => new Token(TokenType.LParen, "("),
-                ')' => new Token(TokenType.RParen, ")"),
-                '[' => new Token(TokenType.LBracket, "["),
-                ']' => new Token(TokenType.RBracket, "]"),
-                '^' => new Token(TokenType.Caret, "^"),
-                '$' => new Token(TokenType.Dollar, "$"),
-                '{' => new Token(TokenType.LBrace, "{"),
-                '}' => new Token(TokenType.RBrace, "}"),
-                ',' => new Token(TokenType.Comma, ","),
-                '-' => new Token(TokenType.Dash, "-"),
-                '\\' => new Token(TokenType.Backslash, "\\"),
-                '=' => new Token(TokenType.Equals, "="),
-                '!' => new Token(TokenType.Exclamation, "!"),
-                '<' => new Token(TokenType.LessThan, "<"),
-                _ => new Token(TokenType.Literal, c.ToString())
-            };
+                case '.': return new Token(TokenType.Dot, ".");
+                case '*': return new Token(TokenType.Star, "*");
+                case '+': return new Token(TokenType.Plus, "+");
+                case '?': return new Token(TokenType.Question, "?");
+                case '|': return new Token(TokenType.Or, "|");
+                case '(': return new Token(TokenType.LParen, "(");
+                case ')': return new Token(TokenType.RParen, ")");
+                case '^': return new Token(TokenType.Caret, "^");
+                case '$': return new Token(TokenType.Dollar, "$");
+                case '{': return new Token(TokenType.LBrace, "{");
+                case '}': return new Token(TokenType.RBrace, "}");
+                case ',': return new Token(TokenType.Comma, ",");
+                case '\\': return new Token(TokenType.Backslash, "\\");
+                case '=': return new Token(TokenType.Equals, "=");
+                case '!': return new Token(TokenType.Exclamation, "!");
+                case '<': return new Token(TokenType.LessThan, "<");
+
+                case '[':
+                    _inCharClass = true;
+                    return new Token(TokenType.LBracket, "[");
+
+                case ']':
+                    _inCharClass = false;
+                    return new Token(TokenType.RBracket, "]");
+
+                case '-':
+                    return _inCharClass
+                        ? new Token(TokenType.Dash, "-")
+                        : new Token(TokenType.Literal, "-");
+
+                default:
+                    return new Token(TokenType.Literal, c.ToString());
+            }
         }
     }
 }
