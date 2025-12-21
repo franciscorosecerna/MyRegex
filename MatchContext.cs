@@ -2,7 +2,7 @@
 {
     public class MatchContext
     {
-        private Dictionary<int, string> _captures;
+        private Dictionary<int, RegexGroup> _captures;
         private Stack<BacktrackPoint> _backtrack;
 
         public string Text { get; }
@@ -18,21 +18,23 @@
 
         private MatchContext(
             string text,
-            Dictionary<int, string> captures,
+            Dictionary<int, RegexGroup> captures,
             Stack<BacktrackPoint> backtrack)
         {
             Text = text;
-            _captures = new Dictionary<int, string>(captures);
+            _captures = new Dictionary<int, RegexGroup>(captures);
             _backtrack = new Stack<BacktrackPoint>(backtrack.Reverse());
         }
 
-        public string? GetCapture(int groupIndex)
-            => _captures.TryGetValue(groupIndex, out var capture) ? capture : null;
+        public RegexGroup? GetCapture(int groupIndex)
+            => _captures.TryGetValue(groupIndex, out var g) ? g : null;
 
-        public void SetCapture(int groupIndex, string value)
-            => _captures[groupIndex] = value;
+        public void SetCapture(int groupIndex, int start, int end)
+        {
+            _captures[groupIndex] = new RegexGroup(start, end);
+        }
 
-        public Dictionary<int, string> GetAllCaptures()
+        public Dictionary<int, RegexGroup> GetAllCaptures()
             => new(_captures);
 
         public MatchContext Snapshot()
@@ -40,7 +42,7 @@
 
         public void RestoreFrom(MatchContext other)
         {
-            _captures = new Dictionary<int, string>(other._captures);
+            _captures = new Dictionary<int, RegexGroup>(other._captures);
             _backtrack = new Stack<BacktrackPoint>(other._backtrack.Reverse());
         }
 

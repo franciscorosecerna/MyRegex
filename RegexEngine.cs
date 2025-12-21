@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.RegularExpressions;
 
 namespace MyRegex
 {
@@ -125,19 +124,14 @@ namespace MyRegex
                 }
 
                 char next = replacement[++i];
+
                 if (next == '$')
                 {
                     sb.Append('$');
                     continue;
                 }
 
-                if (next == '&')
-                {
-                    sb.Append(match.Value);
-                    continue;
-                }
-
-                if (next == '0')
+                if (next == '&' || next == '0')
                 {
                     sb.Append(match.Value);
                     continue;
@@ -153,11 +147,14 @@ namespace MyRegex
                         index = index * 10 + (replacement[++i] - '0');
                     }
 
-                    if (match.Groups.TryGetValue(index, out var value))
-                        sb.Append(value);
+                    if (match.Groups.TryGetValue(index, out var group))
+                    {
+                        sb.Append(match.Text[group.Start..group.End]);
+                    }
 
                     continue;
                 }
+
                 sb.Append('$').Append(next);
             }
 
@@ -195,14 +192,26 @@ namespace MyRegex
         public int Start { get; }
         public int End { get; }
         public string Value => Text[Start..End];
-        public Dictionary<int, string> Groups { get; }
+        public Dictionary<int, RegexGroup> Groups { get; }
 
-        public RegexMatch(string text, int start, int end, Dictionary<int, string> groups)
+        public RegexMatch(string text, int start, int end, Dictionary<int, RegexGroup> groups)
         {
             Text = text;
             Start = start;
             End = end;
-            Groups = new Dictionary<int, string>(groups);
+            Groups = new Dictionary<int, RegexGroup>(groups);
+        }
+    }
+
+    public class RegexGroup
+    {
+        public int Start { get; }
+        public int End { get; }
+
+        public RegexGroup(int start, int end)
+        {
+            Start = start;
+            End = end;
         }
     }
 }

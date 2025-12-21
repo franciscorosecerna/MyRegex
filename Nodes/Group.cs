@@ -24,8 +24,8 @@
 
             if (result.IsSuccess)
             {
-                string captured = result.GetMatched(startPos);
-                result.Context.SetCapture(_groupIndex, captured);
+                int endPos = result.Position;
+                context.SetCapture(_groupIndex, startPos, endPos);
                 return result;
             }
 
