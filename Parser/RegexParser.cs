@@ -26,8 +26,7 @@ namespace MyRegex.Parser
 
         private char EatChar()
         {
-            if (_current.Type != TokenType.Literal &&
-                _current.Type != TokenType.Number)
+            if (_current.Type != TokenType.Literal)
                 throw new Exception($"Expected character, got {_current.Type}");
 
             char c = _current.Value[0];
@@ -49,7 +48,7 @@ namespace MyRegex.Parser
             return left;
         }
 
-        static bool CanStartPrimary(TokenType t) =>
+        private static bool CanStartPrimary(TokenType t) =>
             t is TokenType.Literal
                or TokenType.LParen
                or TokenType.Dot
@@ -57,6 +56,11 @@ namespace MyRegex.Parser
                or TokenType.Caret
                or TokenType.Dollar
                or TokenType.Backslash;
+
+        private static bool CanBeChar(TokenType t) =>
+            t == TokenType.Literal ||
+            t == TokenType.Number ||
+            t == TokenType.Backslash;
 
         public RegexNode ParseConcatenation()
         {
@@ -338,8 +342,17 @@ namespace MyRegex.Parser
                 if (_current.Type == TokenType.Dash)
                 {
                     Eat(TokenType.Dash);
-                    char end = EatChar();
-                    ranges.Add(new CharacterRange(start, end));
+
+                    if (_current.Type == TokenType.RBracket || !CanBeChar(_current.Type))
+                    {
+                        singles.Add(start);
+                        singles.Add('-');
+                    }
+                    else
+                    {
+                        char end = EatChar();
+                        ranges.Add(new CharacterRange(start, end));
+                    }
                 }
                 else
                 {

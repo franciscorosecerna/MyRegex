@@ -49,7 +49,7 @@
 
             char c = _pattern[_pos++];
 
-            if (char.IsDigit(c))
+            if (_inQuantifier && char.IsDigit(c))
             {
                 int start = _pos - 1;
                 while (_pos < _pattern.Length && char.IsDigit(_pattern[_pos]))
