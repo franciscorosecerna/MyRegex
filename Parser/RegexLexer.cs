@@ -32,12 +32,14 @@
         private readonly string _pattern;
         private int _pos;
         private bool _inCharClass;
+        private bool _inQuantifier;
 
         public RegexLexer(string pattern)
         {
             _pattern = pattern;
             _pos = 0;
             _inCharClass = false;
+            _inQuantifier = false;
         }
 
         public Token Next()
@@ -70,9 +72,6 @@
                 case ')': return new Token(TokenType.RParen, ")");
                 case '^': return new Token(TokenType.Caret, "^");
                 case '$': return new Token(TokenType.Dollar, "$");
-                case '{': return new Token(TokenType.LBrace, "{");
-                case '}': return new Token(TokenType.RBrace, "}");
-                case ',': return new Token(TokenType.Comma, ",");
                 case '\\': return new Token(TokenType.Backslash, "\\");
                 case '=': return new Token(TokenType.Equals, "=");
                 case '!': return new Token(TokenType.Exclamation, "!");
@@ -90,6 +89,19 @@
                     return _inCharClass
                         ? new Token(TokenType.Dash, "-")
                         : new Token(TokenType.Literal, "-");
+
+                case '{':
+                    _inQuantifier = true;
+                    return new Token(TokenType.LBrace, "{");
+
+                case '}':
+                    _inQuantifier = false;
+                    return new Token(TokenType.RBrace, "}");
+
+                case ',':
+                    return _inQuantifier
+                        ? new Token(TokenType.Comma, ",")
+                        : new Token(TokenType.Literal, ",");
 
                 default:
                     return new Token(TokenType.Literal, c.ToString());

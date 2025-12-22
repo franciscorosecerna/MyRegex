@@ -55,13 +55,22 @@ namespace MyRegex
 
         public IEnumerable<RegexMatch> Matches(string text)
         {
-            for (int i = 0; i < text.Length; i++)
+            for (int i = 0; i <= text.Length; i++)
             {
                 var match = Match(text, i);
-                if (match != null)
+
+                if (match == null)
+                    continue;
+
+                yield return match;
+
+                if (match.End == match.Start)
                 {
-                    yield return match;
-                    i = Math.Max(match.End - 1, i);
+                    i++;
+                }
+                else
+                {
+                    i = match.End - 1;
                 }
             }
         }
@@ -81,7 +90,7 @@ namespace MyRegex
         public bool IsMatch(string text)
             => Search(text) != null;
 
-        public string Replace(string text, Func<RegexMatch, string> evaluator)
+        private string Replace(string text, Func<RegexMatch, string> evaluator)
         {
             var matches = Matches(text).ToList();
             if (matches.Count == 0) return text;
@@ -165,14 +174,18 @@ namespace MyRegex
         {
             var matches = Matches(text).ToList();
 
-            if (matches.Count == 0)
-                return [text];
-
             var parts = new List<string>();
             int lastIndex = 0;
 
             foreach (var match in matches)
             {
+                if (match.Start == match.End && match.Start == lastIndex)
+                {
+                    parts.Add(text[lastIndex..match.Start]);
+                    lastIndex = match.End;
+                    continue;
+                }
+
                 if (match.Start < lastIndex)
                     continue;
 
@@ -181,7 +194,6 @@ namespace MyRegex
             }
 
             parts.Add(text[lastIndex..]);
-
             return parts;
         }
     }
