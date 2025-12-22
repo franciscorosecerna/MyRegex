@@ -55,23 +55,24 @@ namespace MyRegex
 
         public IEnumerable<RegexMatch> Matches(string text)
         {
-            for (int i = 0; i <= text.Length; i++)
+            int index = 0;
+
+            while (index <= text.Length)
             {
-                var match = Match(text, i);
+                var match = Match(text, index);
 
                 if (match == null)
+                {
+                    index++;
                     continue;
+                }
 
                 yield return match;
 
-                if (match.End == match.Start)
-                {
-                    i++;
-                }
+                if (match.Start == match.End)
+                    index = match.End + 1;
                 else
-                {
-                    i = match.End - 1;
-                }
+                    index = match.End;
             }
         }
 
