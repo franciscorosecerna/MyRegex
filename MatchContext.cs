@@ -4,16 +4,18 @@
     {
         private Dictionary<int, RegexGroup> _captures;
         private Stack<BacktrackPoint> _backtrack;
+        private readonly MyRegexOptions _options;
 
         public string Text { get; }
         public int MatchStart { get; set; } = -1;
         public bool HasMatchStarted => MatchStart >= 0;
 
-        public MatchContext(string text)
+        public MatchContext(string text, MyRegexOptions options)
         {
             Text = text;
             _captures = [];
             _backtrack = new();
+            _options = options;
         }
 
         private MatchContext(
@@ -51,6 +53,9 @@
 
         public bool TryPopBacktrack(out BacktrackPoint point)
             => _backtrack.TryPop(out point!);
+
+        public bool IgnoreCase
+            => _options.HasFlag(MyRegexOptions.IgnoreCase);
     }
 
     public class MatchResult

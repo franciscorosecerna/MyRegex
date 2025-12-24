@@ -1,19 +1,28 @@
-﻿using System.Text;
+﻿using MyRegex.Parser;
+using System.Text;
 
 namespace MyRegex
 {
     public class RegexEngine
     {
         private readonly RegexNode _root;
+        private readonly MyRegexOptions _options;
 
-        public RegexEngine(RegexNode root)
+        public RegexEngine(RegexNode root, MyRegexOptions options = MyRegexOptions.None)
         {
             _root = root;
+            _options = options;
+        }
+
+        public RegexEngine(string pattern, MyRegexOptions options = MyRegexOptions.None)
+        {
+            _root = new RegexParser(pattern).ParseExpression();
+            _options = options;
         }
 
         public RegexMatch? Match(string text, int startPosition = 0)
         {
-            var context = new MatchContext(text);
+            var context = new MatchContext(text, _options);
             var result = _root.Match(context, startPosition);
 
             if (result.IsSuccess)
@@ -226,5 +235,12 @@ namespace MyRegex
             Start = start;
             End = end;
         }
+    }
+
+    [Flags]
+    public enum MyRegexOptions
+    {
+        None = 0,
+        IgnoreCase = 1,
     }
 }

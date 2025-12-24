@@ -22,12 +22,32 @@
                 return MatchResult.Failure(context);
 
             char c = context.Text[position];
+            if (context.IgnoreCase)
+                c = char.ToLowerInvariant(c);
 
-            if (_singles.Contains(c))
-                return MatchResult.Success(position + 1, context);
+            foreach (var s in _singles)
+            {
+                char sc = context.IgnoreCase
+                    ? char.ToLowerInvariant(s)
+                    : s;
 
-            if (_ranges.Any(r => c >= r.Start && c <= r.End))
-                return MatchResult.Success(position + 1, context);
+                if (c == sc)
+                    return MatchResult.Success(position + 1, context);
+            }
+
+            foreach (var r in _ranges)
+            {
+                char start = context.IgnoreCase
+                    ? char.ToLowerInvariant(r.Start)
+                    : r.Start;
+
+                char end = context.IgnoreCase
+                    ? char.ToLowerInvariant(r.End)
+                    : r.End;
+
+                if (c >= start && c <= end)
+                    return MatchResult.Success(position + 1, context);
+            }
 
             foreach (var special in _specialClasses)
             {

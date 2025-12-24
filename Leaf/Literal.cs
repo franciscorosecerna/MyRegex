@@ -12,7 +12,16 @@
             if (position >= context.Text.Length)
                 return MatchResult.Failure(context);
 
-            if (context.Text[position] == _char)
+            char textChar = context.Text[position];
+            char expected = _char;
+
+            if (context.IgnoreCase)
+            {
+                textChar = char.ToLowerInvariant(textChar);
+                expected = char.ToLowerInvariant(expected);
+            }
+
+            if (textChar == expected)
                 return MatchResult.Success(position + 1, context);
 
             return MatchResult.Failure(context);
