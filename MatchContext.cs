@@ -56,6 +56,18 @@
 
         public bool IgnoreCase
             => _options.HasFlag(MyRegexOptions.IgnoreCase);
+
+        public bool Multiline 
+            => _options.HasFlag(MyRegexOptions.Multiline);
+
+        public bool Singleline
+            => _options.HasFlag(MyRegexOptions.Singleline);
+
+        public bool CultureInvariant
+            => _options.HasFlag(MyRegexOptions.CultureInvariant);
+
+        public bool IsNewLine(char c)
+            => c is '\n' or '\r';
     }
 
     public class MatchResult

@@ -7,6 +7,13 @@
             if (position == 0)
                 return MatchResult.Success(position, context);
 
+            if (context.Multiline &&
+                position > 0 &&
+                context.IsNewLine(context.Text[position - 1]))
+            {
+                return MatchResult.Success(position, context);
+            }
+
             return MatchResult.Failure(context);
         }
 

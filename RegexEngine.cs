@@ -242,5 +242,8 @@ namespace MyRegex
     {
         None = 0,
         IgnoreCase = 1,
+        Multiline = 2,
+        Singleline = 3,
+        CultureInvariant = 4,
     }
 }
