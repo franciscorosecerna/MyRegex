@@ -55,16 +55,13 @@
             => _backtrack.TryPop(out point!);
 
         public bool IgnoreCase
-            => _options.HasFlag(MyRegexOptions.IgnoreCase);
+            => (_options & MyRegexOptions.IgnoreCase) != 0;
 
         public bool Multiline 
-            => _options.HasFlag(MyRegexOptions.Multiline);
+            => (_options & MyRegexOptions.Multiline) != 0;
 
         public bool Singleline
-            => _options.HasFlag(MyRegexOptions.Singleline);
-
-        public bool CultureInvariant
-            => _options.HasFlag(MyRegexOptions.CultureInvariant);
+            => (_options & MyRegexOptions.Singleline) != 0;
 
         public bool IsNewLine(char c)
             => c is '\n' or '\r';
@@ -81,13 +78,6 @@
 
         public static MatchResult Success(int pos, MatchContext context) =>
             new() { IsSuccess = true, Position = pos, Context = context };
-
-        public string GetMatched(int startPos)
-        {
-            if (!IsSuccess || startPos < 0 || Position > Context.Text.Length)
-                return "";
-            return Context.Text.Substring(startPos, Position - startPos);
-        }
     }
 
     public record BacktrackPoint(
