@@ -6,19 +6,14 @@ namespace MyRegex
     public class NegatedNode : RegexNode
     {
         private readonly RegexNode _inner;
-        private readonly bool _isZeroWidth = false;
-
         public NegatedNode(RegexNode inner)
         {
             _inner = inner;
-            _isZeroWidth = inner is WordBoundary ||
-                           inner is StartAnchor ||
-                           inner is EndAnchor;
         }
 
         public override MatchResult Match(MatchContext context, int position)
         {
-            if (!_isZeroWidth && position >= context.Text.Length)
+            if (!_inner.IsZeroWidth && position >= context.Text.Length)
                 return MatchResult.Failure(context);
 
             var snapshot = context.Snapshot();
@@ -27,7 +22,7 @@ namespace MyRegex
 
             if (!result.IsSuccess)
             {
-                int newPosition = _isZeroWidth ? position : position + 1;
+                int newPosition = _inner.IsZeroWidth ? position : position + 1;
                 return MatchResult.Success(newPosition, context);
             }
 

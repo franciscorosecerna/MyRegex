@@ -2,6 +2,7 @@
 {
     public class StartAnchor : RegexNode
     {
+        public override bool IsZeroWidth => true;
         public override MatchResult Match(MatchContext context, int position)
         {
             if (position == 0)

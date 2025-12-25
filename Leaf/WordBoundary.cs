@@ -8,6 +8,7 @@ namespace MyRegex.Leaf
 {
     public class WordBoundary : RegexNode
     {
+        public override bool IsZeroWidth => true;
         public override MatchResult Match(MatchContext context, int position)
         {
             bool leftIsWord =
