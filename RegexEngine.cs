@@ -244,5 +244,6 @@ namespace MyRegex
         IgnoreCase = 1,
         Multiline = 2,
         Singleline = 4,
+        CultureInvariant = 8
     }
 }

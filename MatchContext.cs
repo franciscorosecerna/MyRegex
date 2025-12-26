@@ -1,4 +1,6 @@
-﻿namespace MyRegex
+﻿using System.Globalization;
+
+namespace MyRegex
 {
     public class MatchContext
     {
@@ -62,6 +64,19 @@
 
         public bool Singleline
             => (_options & MyRegexOptions.Singleline) != 0;
+
+        public bool CultureInvariant
+            => (_options & MyRegexOptions.CultureInvariant) != 0;
+
+        public char NormalizeCase(char c)
+        {
+            if (!IgnoreCase)
+                return c;
+
+            return CultureInvariant
+                ? char.ToLowerInvariant(c)
+                : char.ToLower(c, CultureInfo.CurrentCulture);
+        }
 
         public bool IsNewLine(char c)
             => c is '\n' or '\r';
