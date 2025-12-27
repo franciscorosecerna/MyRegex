@@ -154,6 +154,14 @@ namespace MyRegex.Parser
                 {
                     Eat(TokenType.Question);
 
+                    if (_current.Type == TokenType.GreaterThan)
+                    {
+                        Eat(TokenType.GreaterThan);
+                        var expr = ParseExpression();
+                        Eat(TokenType.RParen);
+                        return new AtomicGroup(expr);
+                    }
+
                     if (_current.Type == TokenType.Equals)
                     {
                         Eat(TokenType.Equals);
@@ -179,7 +187,6 @@ namespace MyRegex.Parser
                             Eat(TokenType.Equals);
                             var expr = ParseExpression();
                             Eat(TokenType.RParen);
-
                             int length = CalculateFixedLength(expr);
                             return new PositiveLookbehind(expr, length);
                         }
@@ -189,7 +196,6 @@ namespace MyRegex.Parser
                             Eat(TokenType.Exclamation);
                             var expr = ParseExpression();
                             Eat(TokenType.RParen);
-
                             int length = CalculateFixedLength(expr);
                             return new NegatedNode(
                                 new PositiveLookbehind(expr, length)

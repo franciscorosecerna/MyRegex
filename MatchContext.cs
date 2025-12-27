@@ -56,6 +56,15 @@ namespace MyRegex
         public bool TryPopBacktrack(out BacktrackPoint point)
             => _backtrack.TryPop(out point!);
 
+        public void DiscardBacktracksFrom(int checkpoint)
+        {
+            while (_backtrack.Count > checkpoint)
+                _backtrack.Pop();
+        }
+
+        public int BacktrackCount 
+            => _backtrack.Count;
+
         public bool IgnoreCase
             => (_options & MyRegexOptions.IgnoreCase) != 0;
 

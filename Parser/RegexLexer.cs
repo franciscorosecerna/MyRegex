@@ -23,7 +23,8 @@
         Dash,
         Equals,
         Exclamation,
-        LessThan
+        LessThan,
+        GreaterThan
     }
     public record Token(TokenType Type, string Value);
 
@@ -76,6 +77,7 @@
                 case '=': return new Token(TokenType.Equals, "=");
                 case '!': return new Token(TokenType.Exclamation, "!");
                 case '<': return new Token(TokenType.LessThan, "<");
+                case '>': return new Token(TokenType.GreaterThan, ">");
 
                 case '[':
                     _inCharClass = true;
