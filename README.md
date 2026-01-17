@@ -33,6 +33,7 @@ Composite Nodes:
 - `Alternation` (`|`)
 - `Group` (capturing groups)
 - `Sequence`
+- `AtomicGroup`
 
 ## **How it works**
 
